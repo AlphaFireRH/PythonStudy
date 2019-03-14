@@ -1,6 +1,15 @@
 #!use/bin/env python3
-#-*- coding utf-8 -*-
+# -*- coding utf-8 -*-
 
-import os
-arr=[d for d in os.listdir('.')]
-print(arr)
+maxValue=10000000000000
+lValue=1;
+llValue=1;
+
+print(llValue)
+
+while lValue<maxValue:
+    print(lValue)
+    tempV=llValue
+    llValue=lValue
+    lValue=llValue+tempV
+
