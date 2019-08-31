@@ -86,7 +86,8 @@ def NeedBreak():
         state = True
     return state
 
-proxieRequest='http://dev.energy67.top/api/?apikey=fba0068b9fe964c50414feef499fc05419c12fb1&num=3&type=json&line=win&proxy_type=putong&sort=rand&model=all&protocol=http&address=&kill_address=&port=&kill_port=&today=false&abroad=1&isp=&anonymity='
+
+proxieRequest = 'http://dev.energy67.top/api/?apikey=fba0068b9fe964c50414feef499fc05419c12fb1&num=3&type=json&line=win&proxy_type=putong&sort=rand&model=all&protocol=http&address=&kill_address=&port=&kill_port=&today=false&abroad=1&isp=&anonymity='
 
 proxie = {'http': 'http://58.253.153.247:9999',
           'https': 'https://58.253.153.1:9999'}
@@ -102,7 +103,6 @@ def GetBaiduInfo():
     )
     print(r.status)
     print(r.data.decode())
-
 
 
 def GetWebInfo(targetUrl):

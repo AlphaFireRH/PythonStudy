@@ -20,13 +20,17 @@ def ThemeExcelToJson(filePath):
         tempStr = ""
 
         tempStr = "{\"Id\":\""
-        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws, 'A' + str(i + 1)).value) + "\"")
+        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
+                                                      'A' + str(i + 1)).value) + "\"")
         tempStr += ",\"resId\":\""
-        tempStr += (Work.myopenpyxl.GetTargetCell(ws, 'C' + str(i + 1)).value + "\"")
+        tempStr += (Work.myopenpyxl.GetTargetCell(ws,
+                                                  'C' + str(i + 1)).value + "\"")
         tempStr += ",\"tName\":\""
-        tempStr += (Work.myopenpyxl.GetTargetCell(ws, 'C' + str(i + 1)).value + "\"")
+        tempStr += (Work.myopenpyxl.GetTargetCell(ws,
+                                                  'C' + str(i + 1)).value + "\"")
         tempStr += ",\"level\":"
-        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws, 'B' + str(i + 1)).value) + "}")
+        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
+                                                      'B' + str(i + 1)).value) + "}")
 
         if i == 0:
             jsonInfo += tempStr
@@ -53,7 +57,7 @@ def LanagueToExcel(filePath):
         Work.myopenpyxl.SetTargetCellPos(ws, 'A' + index, temp['Key'])
         Work.myopenpyxl.SetTargetCellPos(ws, 'B' + index, temp['Value'])
         num = num + 1
-    Work.myopenpyxl.WriteXlsx(wb, tempName);
+    Work.myopenpyxl.WriteXlsx(wb, tempName)
 
 
 def RandomToExcel(filePath):
@@ -76,7 +80,7 @@ def RandomToExcel(filePath):
         Work.myopenpyxl.SetTargetCellPos(ws, 'E' + index, temp['C'])
         Work.myopenpyxl.SetTargetCellPos(ws, 'F' + index, temp['D'])
         num = num + 1
-    Work.myopenpyxl.WriteXlsx(wb, tempName);
+    Work.myopenpyxl.WriteXlsx(wb, tempName)
 
 
 def EmojiToJson(filePath):
@@ -91,9 +95,11 @@ def EmojiToJson(filePath):
     for i in range(len):
         index = i + 1
         if (index >= 2):
-            emoji = str(Work.myopenpyxl.GetTargetCell(ws, 'A' + str(index)).value)
+            emoji = str(Work.myopenpyxl.GetTargetCell(
+                ws, 'A' + str(index)).value)
             effectArray.append(emoji)
-            cValue = str(Work.myopenpyxl.GetTargetCell(ws, 'C' + str(index)).value).lower()
+            cValue = str(Work.myopenpyxl.GetTargetCell(
+                ws, 'C' + str(index)).value).lower()
             arr = cValue.split(splitStr)
             for word in arr:
                 if (dict.__contains__(word)):
@@ -133,7 +139,7 @@ def CreateEmojiEffectExcel(filePath, arr):
         Work.myopenpyxl.SetTargetCellPos(ws, 'H' + index, "")
         Work.myopenpyxl.SetTargetCellPos(ws, 'I' + index, "")
         num = num + 1
-    Work.myopenpyxl.WriteXlsx(wb, tempName);
+    Work.myopenpyxl.WriteXlsx(wb, tempName)
 
 
 def EmojiEffectToJson(filePath):
@@ -141,19 +147,25 @@ def EmojiEffectToJson(filePath):
     ws = Work.myopenpyxl.GetTargetSheet(wb, 'Sheet')
 
     len = Work.myopenpyxl.GetMaxRow(ws)
-    
+
     dict = {}
     for i in range(len):
         index = i + 1
         if (index > 1):
             emoji = {}
 
-            emoji["id"] = Work.myopenpyxl.GetTargetCell(ws, 'A' + str(index)).value
-            emoji["img"] = str(Work.myopenpyxl.GetTargetCell(ws, 'B' + str(index)).value)
-            emoji["type"] = Work.myopenpyxl.GetTargetCell(ws, 'C' + str(index)).value
-            emoji["inT"] = Work.myopenpyxl.GetTargetCell(ws, 'D' + str(index)).value
-            emoji["wT"] = Work.myopenpyxl.GetTargetCell(ws, 'E' + str(index)).value
-            emoji["outT"] = Work.myopenpyxl.GetTargetCell(ws, 'F' + str(index)).value
+            emoji["id"] = Work.myopenpyxl.GetTargetCell(
+                ws, 'A' + str(index)).value
+            emoji["img"] = str(Work.myopenpyxl.GetTargetCell(
+                ws, 'B' + str(index)).value)
+            emoji["type"] = Work.myopenpyxl.GetTargetCell(
+                ws, 'C' + str(index)).value
+            emoji["inT"] = Work.myopenpyxl.GetTargetCell(
+                ws, 'D' + str(index)).value
+            emoji["wT"] = Work.myopenpyxl.GetTargetCell(
+                ws, 'E' + str(index)).value
+            emoji["outT"] = Work.myopenpyxl.GetTargetCell(
+                ws, 'F' + str(index)).value
             GValue = Work.myopenpyxl.GetTargetCell(ws, 'G' + str(index)).value
             if (GValue == None):
                 GValue = ""
@@ -172,47 +184,51 @@ def EmojiEffectToJson(filePath):
     Work.tool_file.WriteText(json.dumps(dict), filePath + "config.txt")
     print("OK")
 
-	
-def GtaIapSql(filePath,targetPath):
-	wb = Work.myopenpyxl.OpenXlsxFullName(filePath)
-	ws = Work.myopenpyxl.GetTargetSheet(wb, 'Sheet')
-	len = Work.myopenpyxl.GetMaxRow(ws)
 
-	fo = open(targetPath, "a+")
-    
-    
-	allSql="";
-	dict = {}
-	for i in range(len):
-		index = i+1
-		if (index >=1):
-			pos="A{0}:BD{1}".format(str(index),str(index))
-			list=Work.myopenpyxl.GetTargetCells(ws,pos)[0]
-			strInfo=""
-			jIndex=1
-			for tempCurpe in list:
-				strInfo=strInfo + GetStr(Work.myopenpyxl.GetTargetCellPos(ws,index,jIndex).value)+","
-				jIndex=jIndex+1
-			sql=GetSql(strInfo+'\n');
-			fo.write(sql)
-			
-	fo.close()
-	print("OK")
+def GtaIapSql(filePath, targetPath):
+    wb = Work.myopenpyxl.OpenXlsxFullName(filePath)
+    ws = Work.myopenpyxl.GetTargetSheet(wb, 'Sheet')
+    len = Work.myopenpyxl.GetMaxRow(ws)
+
+    fo = open(targetPath, "a+")
+
+    allSql = ""
+    dict = {}
+    for i in range(len):
+        index = i+1
+        if (index >= 1):
+            pos = "A{0}:BD{1}".format(str(index), str(index))
+            list = Work.myopenpyxl.GetTargetCells(ws, pos)[0]
+            strInfo = ""
+            jIndex = 1
+            for tempCurpe in list:
+                strInfo = strInfo + \
+                    GetStr(Work.myopenpyxl.GetTargetCellPos(
+                        ws, index, jIndex).value)+","
+                jIndex = jIndex+1
+            sql = GetSql(strInfo+'\n')
+            fo.write(sql)
+
+    fo.close()
+    print("OK")
+
 
 def GetStr(info):
-	if (info == None):
-		info = ""
-	strInfo='\''
-	strInfo=strInfo+str(info)
-	strInfo=strInfo + '\''
-	return strInfo
-	
+    if (info == None):
+        info = ""
+    strInfo = '\''
+    strInfo = strInfo+str(info)
+    strInfo = strInfo + '\''
+    return strInfo
+
+
 def GetSql(info):
-	strInfo="INSERT INTO"
-	strInfo=strInfo+" [dbo].[raw_event_1_129_1-000000000002]([id],[sign],[aid],[did],[did2],[uuid],[fid],[target],[is_tester],[dt],[install_dt],[server_dt],[client_dt],[country],[countryx],[adjust_source],[ver],[gta_ver],[install_ver],[timezone],[event_sn],[ip],[max_level],[cur_level],[play_seconds],[open_count],[event_name],[iap_count],[device_class],[device_model],[from_adp],[from_camp],[from_app],[from_creative],[user_group],[v1],[v2],[v3],[v4],[v5],[v6],[v7],[v8],[vt],[created_at],[updated_at],[event_id],[v9],[v10],[v11],[v12],[ref],[property],[level_diff],[attribute],[playday]) VALUES("
-	strInfo=strInfo + info;
-	strInfo=strInfo + ")";
-	return strInfo
+    strInfo = "INSERT INTO"
+    strInfo = strInfo+" [dbo].[raw_event_1_129_1-000000000002]([id],[sign],[aid],[did],[did2],[uuid],[fid],[target],[is_tester],[dt],[install_dt],[server_dt],[client_dt],[country],[countryx],[adjust_source],[ver],[gta_ver],[install_ver],[timezone],[event_sn],[ip],[max_level],[cur_level],[play_seconds],[open_count],[event_name],[iap_count],[device_class],[device_model],[from_adp],[from_camp],[from_app],[from_creative],[user_group],[v1],[v2],[v3],[v4],[v5],[v6],[v7],[v8],[vt],[created_at],[updated_at],[event_id],[v9],[v10],[v11],[v12],[ref],[property],[level_diff],[attribute],[playday]) VALUES("
+    strInfo = strInfo + info
+    strInfo = strInfo + ")"
+    return strInfo
+
 
 class EmojiEffectData:
     # id

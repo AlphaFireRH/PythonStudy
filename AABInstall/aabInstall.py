@@ -80,5 +80,5 @@ while True:
         Work.miniGame.LevelDataToJson(GetInput())
     elif val == 13:
         Work.miniGame.WordDataToJson(GetInput())
-	
+
 # elif val==100:
