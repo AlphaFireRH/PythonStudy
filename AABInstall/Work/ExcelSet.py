@@ -24,13 +24,16 @@ def ThemeExcelToJson(filePath):
                                                       'A' + str(i + 1)).value) + "\"")
         tempStr += ",\"resId\":\""
         tempStr += (Work.myopenpyxl.GetTargetCell(ws,
-                                                  'C' + str(i + 1)).value + "\"")
+                                                  'B' + str(i + 1)).value + "\"")
         tempStr += ",\"tName\":\""
         tempStr += (Work.myopenpyxl.GetTargetCell(ws,
-                                                  'C' + str(i + 1)).value + "\"")
-        tempStr += ",\"level\":"
+                                                  'B' + str(i + 1)).value + "\"")
+        tempStr += ",\"openT\":\""
         tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
-                                                      'B' + str(i + 1)).value) + "}")
+                                                      'C' + str(i + 1)).value) + "\"")
+        tempStr += ",\"openV\":"
+        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
+                                                      'D' + str(i + 1)).value) + "}")
 
         if i == 0:
             jsonInfo += tempStr

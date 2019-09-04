@@ -45,44 +45,44 @@ mongo = mongodbTool.MyMongoDB()
 finishMongo = mongodbTool.MyMongoDB()
 finishMongo.SetDB(finishMongo.GetDBWithName("finishdb"))
 finishMongo.SetCollection(finishMongo.GetCollectionWithName("finishcol"))
+maxUserNumber = 100000000
+base = 'href="//www.zhihu.com/people/'
 
 #  https://www.zhihu.com/people/haozhi/following
 # allUser={}
-finishFindList = {}
-waitFindList = []
-maxUserNumber = 100000000
-base = 'href="//www.zhihu.com/people/'
-insertList = []
+finishFindDic = {}
 collectList = {}
-tempWait = {}
+insertList = []
+
+waitFindList = []
+tempWaitDic = {}
 
 
 def InitGetDbData():
+    for x in finishMongo.FindTargetValue({"_id": 0}):
+        target = x['tempToken']
+        if target not in finishFindDic:
+            finishFindDic[target] = True
     for x in mongo.FindTargetValue({"articlesCount": 0}):
         target = x['urlToken']
         if target not in collectList:
             collectList[target] = True
-    for x in finishMongo.FindTargetValue({"_id": 0}):
-        target = x['tempToken']
-        if target not in finishFindList:
-            finishFindList[target] = True
+        if (target not in finishFindDic) and (target not in tempWaitDic):
+            tempWaitDic[target] = x['followerCount']
+            waitFindList.append(target)
     print("请求完毕")
-    for x in collectList:
-        if (x not in finishFindList) and (x not in tempWait):
-            tempWait[x] = True
-            waitFindList.append(x)
 
 
 def ShowState():
     print("changeUser")
     print("now collect " + str(len(collectList)))
-    print("now finish " + str(len(finishFindList)))
+    print("now finish " + str(len(finishFindDic)))
     print("wait " + str(len(waitFindList)))
 
 
 def NeedBreak():
     state = False
-    if len(finishFindList) >= maxUserNumber:
+    if len(finishFindDic) >= maxUserNumber:
         state = True
     return state
 
@@ -142,11 +142,11 @@ def GetUserTuple(targetUrl):
             try:
                 userDataReBuild = json.loads(jsonData)
                 tempToken = userDataReBuild['urlToken']
-                if tempToken not in finishFindList:
+                if tempToken not in finishFindDic:
                     insertList.append(userDataReBuild)
-                    finishFindList[tempToken] = True
-                    if tempToken not in tempWait:
-                        tempWait[tempToken] = True
+                    finishFindDic[tempToken] = True
+                    if tempToken not in tempWaitDic:
+                        tempWaitDic[tempToken] = userDataReBuild['followerCount']
                         waitFindList.append(tempToken)
             except Exception as e:
                 print(e)
@@ -178,6 +178,7 @@ def Step():
     InitGetDbData()
     if len(waitFindList) == 0:
         waitFindList.append("haozhi")
+        tempWaitDic["haozhi"] = 0
     # LoopSetData()
 
     threads = []
@@ -194,7 +195,7 @@ PushFinishLock = threading.Lock()
 
 def TryInsertThread():
     global insertList
-    if len(insertList) > 100:
+    if len(insertList) > 200:
         mongo.InsertDicts(insertList)
         insertList = []
 
@@ -204,30 +205,52 @@ def GetWaitThread():
     GetWaitLock.acquire()
     if len(waitFindList) > 0:
         ShowState()
-        while(len(waitFindList) > 0):
-            tempToken = waitFindList[0]
-            waitFindList.pop(0)
-            tempWait.pop(tempToken)
-            if tempToken not in finishFindList:
-                finishFindList[tempToken] = True
-                dic = {}
-                dic["tempToken"] = tempToken
-                finishMongo.InsertDict(dic)
-                break
+        tempMaxFlooerNum = -1
+        tempMaxIndex = 0
+        for i in range(len(waitFindList)):
+            target = waitFindList[i]
+            if not(target == None):
+                if tempWaitDic[target] > tempMaxFlooerNum:
+                    tempMaxFlooerNum = tempWaitDic[target]
+                    tempMaxIndex = i
+
+        tempToken = waitFindList[tempMaxIndex]
+        waitFindList.pop(tempMaxIndex)
+        tempWaitDic.pop(tempToken)
+        if tempToken not in finishFindDic:
+            finishFindDic[tempToken] = True
+            dic = {}
+            dic["tempToken"] = tempToken
+            finishMongo.InsertDict(dic)
+
+        # while(len(waitFindList) > 0):
+        #     tempToken = waitFindList[0]
+        #     waitFindList.pop(0)
+        #     tempWaitDic.pop(tempToken)
+        #     if tempToken not in finishFindDic:
+        #         finishFindDic[tempToken] = True
+        #         dic = {}
+        #         dic["tempToken"] = tempToken
+        #         finishMongo.InsertDict(dic)
+        #         break
     GetWaitLock.release()
     return tempToken
 
 
 def PushWaitThread(tempToken, userDataReBuild):
     PushFinishLock.acquire()
-    if ((tempToken not in tempWait) and (tempToken not in finishFindList)):
-        tempWait[tempToken] = True
+    if ((tempToken not in tempWaitDic) and (tempToken not in finishFindDic)):
+        tempWaitDic[tempToken] = True
         waitFindList.append(tempToken)
         if tempToken not in collectList:
-            collectList[tempToken] = True
+            collectList[tempToken] = userDataReBuild['followerCount']
             insertList.append(userDataReBuild)
             TryInsertThread()
     PushFinishLock.release()
+
+
+def WaitFindListSort():
+    waitFindList.sort(key=lambda x: tempWaitDic[x], reverse=True)
 
 
 def CheckWaitThread():
@@ -241,10 +264,10 @@ def CheckWaitThread():
 
 
 def GetUserTupleThread(targetUrl):
-    print('request...')
     info = GetWebInfo(targetUrl)
     target = re.compile(r'{"id":.*?articlesCount":')
     tuple = re.findall(target, info)
+
     for index in range(len(tuple)):
         data = tuple[index]
         if data != None:
@@ -252,11 +275,11 @@ def GetUserTupleThread(targetUrl):
             try:
                 userDataReBuild = json.loads(jsonData)
                 tempToken = userDataReBuild['urlToken']
-
                 PushWaitThread(tempToken, userDataReBuild)
             except Exception as e:
                 print(e)
 
+    print('request...'+str(len(tuple)))
     time.sleep(random.uniform(0.02, 0.3))
 
 

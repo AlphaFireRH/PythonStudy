@@ -40,9 +40,7 @@ def GetShowInfo():
     info += ('7、show error log: \n')
     info += ('8、show apk info: \n')
     info += ('9、show installed info: \n')
-    info += ('10、EmojiExcel to json: \n')
-    info += ('11、EmojiEffectExcel to json: \n')
-    info += ('12、Iap to sql: \n')
+    info += ('10、Excel to json: \n')
 
     info += ('100、test: \n')
 
@@ -73,7 +71,7 @@ while True:
     elif val == 9:
         Work.fileTool.ShowInstalledInfoFromAAPT(GetInput())
     elif val == 10:
-        Work.ExcelSet.EmojiToJson(GetInput())
+        Work.ExcelSet.ThemeExcelToJson(GetInput())
     elif val == 11:
         Work.ExcelSet.EmojiEffectToJson(GetInput())
     elif val == 12:
