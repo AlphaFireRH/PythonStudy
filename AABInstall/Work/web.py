@@ -11,6 +11,7 @@ import time
 import mongodbTool
 import copy
 import random
+import WebRequest
 
 
 class UserData(object):
@@ -87,14 +88,6 @@ def NeedBreak():
     return state
 
 
-proxieRequest = 'http://dev.energy67.top/api/?apikey=fba0068b9fe964c50414feef499fc05419c12fb1&num=3&type=json&line=win&proxy_type=putong&sort=rand&model=all&protocol=http&address=&kill_address=&port=&kill_port=&today=false&abroad=1&isp=&anonymity='
-
-proxie = {'http': 'http://58.253.153.247:9999',
-          'https': 'https://58.253.153.1:9999'}
-header = {'User-Agent': r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) 'r'Chrome/45.0.2454.85 Safari/537.36 115Browser/6.0.3',
-          'Referer': r'http://www.lagou.com/zhaopin/Python/?labelWords=label', 'Connection': 'keep-alive'}
-
-
 def GetBaiduInfo():
     http = urllib3.PoolManager(timeout=30)
     r = http.request(
@@ -114,8 +107,8 @@ def GetWebInfo(targetUrl):
         'GET', targetUrl
     )
 
-    #proxy = urllib3.ProxyManager(targetUrl, headers=header)
-    #r = proxy.request('GET', targetUrl)
+    # proxy = urllib3.ProxyManager(targetUrl, headers=header)
+    # r = proxy.request('GET', targetUrl)
 
     # print(r.status)
     # print(r.data.decode())
@@ -176,13 +169,16 @@ def LoopSetData():
 
 def Step():
     InitGetDbData()
+    WebRequest.UpDateHttpIP()
+    WebRequest.UpDateHttpIP()
+
     if len(waitFindList) == 0:
         waitFindList.append("haozhi")
         tempWaitDic["haozhi"] = 0
     # LoopSetData()
 
     threads = []
-    for i in range(1):
+    for i in range(8):
         threads.append(threading.Thread(target=CheckWaitThread))
 
     for tempThread in threads:
@@ -195,7 +191,7 @@ PushFinishLock = threading.Lock()
 
 def TryInsertThread():
     global insertList
-    if len(insertList) > 200:
+    if len(insertList) > 100:
         mongo.InsertDicts(insertList)
         insertList = []
 
@@ -262,7 +258,7 @@ def CheckWaitThread():
             followingNumber, followerNumber = GetFollowingAndFollowerNumber(
                 GetFollowingUrl(tempToken))
 
-            time.sleep(1)
+            # time.sleep(1)
 
             for num in range(1 + (followingNumber-1)//10):
                 time.sleep(random.uniform(0.02, 0.3))
@@ -282,7 +278,7 @@ def CheckWaitThread():
 
 
 def GetUserTupleThread(targetUrl):
-    info = GetWebInfo(targetUrl)
+    info = WebRequest.open_url_random_host(targetUrl)  # GetWebInfo(targetUrl)
     target = re.compile(r'{"id":.*?articlesCount":')
     tuple = re.findall(target, info)
 
@@ -297,29 +293,34 @@ def GetUserTupleThread(targetUrl):
             except Exception as e:
                 print(e)
 
-    print('request...'+targetUrl)
-    time.sleep(random.uniform(0.02, 0.3))
+    # print('request...'+targetUrl)
 
 
 def GetFollowingAndFollowerNumber(targetUrl):
-    info = GetWebInfo(targetUrl)
-    target = re.compile(
-        r'<strong class="NumberBoard-itemValue" title=".*?">')
-    tuple = re.findall(target, info)
-
     followingNumber = 0
     followerNumber = 0
-    for index in range(len(tuple)):
-        data = tuple[index]
-        if data != None:
-            data = str(data).replace(
-                '<strong class="NumberBoard-itemValue" title="', '')
-            data = data.replace(
-                '">', '')
+
+    html = WebRequest.open_url_random_host(targetUrl)
+    # html = GetWebInfo(targetUrl)
+    try:
+        target = re.compile(
+            r'<strong class="NumberBoard-itemValue" title=".*?">')
+        tuple = re.findall(target, html)
+
+        for index in range(len(tuple)):
+            data = tuple[index]
+            if data != None:
+                data = str(data).replace(
+                    '<strong class="NumberBoard-itemValue" title="', '')
+                data = data.replace(
+                    '">', '')
             if index == 0:
                 followingNumber = int(data)
             else:
                 followerNumber = int(data)
+    except Exception as e:
+        print(e)
+        # print(info)
     return followingNumber, followerNumber
 
 
