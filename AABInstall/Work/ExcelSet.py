@@ -31,11 +31,16 @@ def ThemeExcelToJson(filePath):
         tempStr += ",\"openT\":\""
         tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
                                                       'C' + str(i + 1)).value) + "\"")
+        tempStr += ",\"isHasStartBg\":\""
+        tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
+                                                      'D' + str(i + 1)).value) + "\"")
         tempStr += ",\"openV\":"
         tempStr += (str(Work.myopenpyxl.GetTargetCell(ws,
-                                                      'D' + str(i + 1)).value) + "}")
+                                                      'E' + str(i + 1)).value) + "}")
 
         if i == 0:
+            jsonInfo = ''
+        if i == 1:
             jsonInfo += tempStr
         else:
             jsonInfo += "," + tempStr

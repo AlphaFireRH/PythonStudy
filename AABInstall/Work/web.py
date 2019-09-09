@@ -202,10 +202,10 @@ def TryInsertThread():
 
 def GetWaitThread():
     tempToken = None
+    tempMaxFlooerNum = -1
     GetWaitLock.acquire()
     if len(waitFindList) > 0:
         ShowState()
-        tempMaxFlooerNum = -1
         tempMaxIndex = 0
         for i in range(len(waitFindList)):
             target = waitFindList[i]
@@ -259,8 +259,26 @@ def CheckWaitThread():
         if tempToken == None:
             time.sleep(1)
         else:
-            GetUserTupleThread(GetFollowingUrl(tempToken))
-            GetUserTupleThread(GetFollowersUrl(tempToken))
+            followingNumber, followerNumber = GetFollowingAndFollowerNumber(
+                GetFollowingUrl(tempToken))
+
+            time.sleep(1)
+
+            for num in range(1 + (followingNumber-1)//10):
+                time.sleep(random.uniform(0.02, 0.3))
+                if num == 0:
+                    GetUserTupleThread(GetFollowingUrl(tempToken))
+                else:
+                    GetUserTupleThread(GetFollowingUrl(
+                        tempToken)+'?page='+str(num+1))
+
+            for num in range(1 + (followerNumber-1)//10):
+                time.sleep(random.uniform(0.02, 0.3))
+                if num == 0:
+                    GetUserTupleThread(GetFollowersUrl(tempToken))
+                else:
+                    GetUserTupleThread(GetFollowersUrl(
+                        tempToken)+'?page='+str(num+1))
 
 
 def GetUserTupleThread(targetUrl):
@@ -279,8 +297,30 @@ def GetUserTupleThread(targetUrl):
             except Exception as e:
                 print(e)
 
-    print('request...'+str(len(tuple)))
+    print('request...'+targetUrl)
     time.sleep(random.uniform(0.02, 0.3))
+
+
+def GetFollowingAndFollowerNumber(targetUrl):
+    info = GetWebInfo(targetUrl)
+    target = re.compile(
+        r'<strong class="NumberBoard-itemValue" title=".*?">')
+    tuple = re.findall(target, info)
+
+    followingNumber = 0
+    followerNumber = 0
+    for index in range(len(tuple)):
+        data = tuple[index]
+        if data != None:
+            data = str(data).replace(
+                '<strong class="NumberBoard-itemValue" title="', '')
+            data = data.replace(
+                '">', '')
+            if index == 0:
+                followingNumber = int(data)
+            else:
+                followerNumber = int(data)
+    return followingNumber, followerNumber
 
 
 Step()
