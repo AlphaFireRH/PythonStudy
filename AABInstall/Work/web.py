@@ -99,8 +99,6 @@ def GetBaiduInfo():
 
 
 def GetWebInfo(targetUrl):
-    global proxie
-    global header
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     http = urllib3.PoolManager(timeout=30)
     r = http.request(
@@ -178,8 +176,10 @@ def Step():
     # LoopSetData()
 
     threads = []
-    for i in range(8):
+    i = 0
+    while i < 6:
         threads.append(threading.Thread(target=CheckWaitThread))
+        i += 1
 
     for tempThread in threads:
         tempThread.start()
@@ -278,22 +278,24 @@ def CheckWaitThread():
 
 
 def GetUserTupleThread(targetUrl):
-    info = WebRequest.open_url_random_host(targetUrl)  # GetWebInfo(targetUrl)
-    target = re.compile(r'{"id":.*?articlesCount":')
-    tuple = re.findall(target, info)
+    # html = GetWebInfo(targetUrl)
+    html = WebRequest.open_url_random_host(targetUrl)
+    if html != "":
+        target = re.compile(r'{"id":.*?articlesCount":')
+        tuple = re.findall(target, html)
 
-    for index in range(len(tuple)):
-        data = tuple[index]
-        if data != None:
-            jsonData = data + "0}"
-            try:
-                userDataReBuild = json.loads(jsonData)
-                tempToken = userDataReBuild['urlToken']
-                PushWaitThread(tempToken, userDataReBuild)
-            except Exception as e:
-                print(e)
-
-    # print('request...'+targetUrl)
+        for index in range(len(tuple)):
+            data = tuple[index]
+            if data != None:
+                jsonData = data + "0}"
+                try:
+                    userDataReBuild = json.loads(jsonData)
+                    tempToken = userDataReBuild['urlToken']
+                    PushWaitThread(tempToken, userDataReBuild)
+                except Exception as e:
+                    print(e)
+    #print('request...'+targetUrl)
+    #time.sleep(random.uniform(0.02, 0.3))
 
 
 def GetFollowingAndFollowerNumber(targetUrl):
@@ -302,26 +304,34 @@ def GetFollowingAndFollowerNumber(targetUrl):
 
     html = WebRequest.open_url_random_host(targetUrl)
     # html = GetWebInfo(targetUrl)
-    try:
-        target = re.compile(
-            r'<strong class="NumberBoard-itemValue" title=".*?">')
-        tuple = re.findall(target, html)
+    if html != "":
+        try:
+            target = re.compile(
+                r'<strong class="NumberBoard-itemValue" title=".*?">')
+            tuple = re.findall(target, html)
 
-        for index in range(len(tuple)):
-            data = tuple[index]
-            if data != None:
-                data = str(data).replace(
-                    '<strong class="NumberBoard-itemValue" title="', '')
-                data = data.replace(
-                    '">', '')
-            if index == 0:
-                followingNumber = int(data)
-            else:
-                followerNumber = int(data)
-    except Exception as e:
-        print(e)
-        # print(info)
+            for index in range(len(tuple)):
+                data = tuple[index]
+                if data != None:
+                    data = str(data).replace(
+                        '<strong class="NumberBoard-itemValue" title="', '')
+                    data = data.replace(
+                        '">', '')
+                if index == 0:
+                    followingNumber = int(data)
+                else:
+                    followerNumber = int(data)
+        except Exception as e:
+            print(e)
+            UpDateHost()
+            # print(info)
+    time.sleep(random.uniform(0.02, 0.3))
     return followingNumber, followerNumber
+
+
+def UpDateHost():
+    print('update')
+    # WebRequest.UpDateHttpIP()
 
 
 Step()

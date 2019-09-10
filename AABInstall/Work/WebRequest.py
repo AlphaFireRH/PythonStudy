@@ -8,37 +8,19 @@ import time
 import json
 import re
 import requests
+import urllib3
 from bs4 import BeautifulSoup
 
-#sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-
-def open_url(url_str, proxy_ip):
-    html = ""
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0",
-        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-        "Accept-Encoding": "gzip, deflate",
-        "Connection": "keep-alive"
-    }
-    if bool(proxy_ip):
-        html = requests.get(url=url_str, headers=headers,
-                            proxies=proxy_ip).content
-    else:
-        html = requests.get(url=url_str, headers=headers).content
-    # 返回网页内容,动态加载的需要另行处理
-    return html.decode()
-
-
-def open_url_random_host(url_str):
-    proxy_ip = {
-        'http': random.choice(http_ip),
-    }
-
-    # print('使用代理的IP:', proxy_ip)
-    html = open_url(url_str, proxy_ip)
-    return html
-
+user_agents = [
+    "Opera/12.02 (Android 4.1; Linux; Opera Mobi/ADR-1111101157; U; en-US) Presto/2.9.201 Version/12.02",
+    "Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3",
+    "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
+    "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+]
 
 http_ip = [
     '119.101.117.134:9999',
@@ -53,10 +35,93 @@ http_ip = [
     '47.107.158.219:8000',
     '112.87.70.162:9999'
 ]
+tryNumber = 0
+
+
+def open_url(url_str, proxy_ip):
+    html = ""
+    headerInfo = GetHeaders()
+
+    if bool(proxy_ip):
+        html = requests.get(url=url_str,  headers=headerInfo,
+                            proxies=proxy_ip).content.decode('utf8')
+
+    else:
+        html = requests.get(url=url_str, headers=headerInfo).content.decode('utf8')
+    # 返回网页内容,动态加载的需要另行处理
+    return html
+
+
+def GetWebInfo(url_str, proxy_ip):
+    html = ""
+    headerInfo = GetHeaders()
+
+    #
+
+    if bool(proxy_ip):
+        print(url_str)
+        proxy = urllib3.ProxyManager(
+            'http://'+proxy_ip['http'], headers=headerInfo)
+        r = proxy.request('get', url_str)
+        print('status ' + str(r.status))
+        html = r.data.decode()
+        print(html.decode())
+    else:
+        http = urllib3.PoolManager(timeout=30)
+        r = http.request(
+            'GET', url_str, headers=headerInfo
+        )
+        print('status ' + str(r.status))
+        html = r.data.decode()
+    return (html)
+
+
+def open_url_random_host(url_str):
+    global tryNumber
+    html = ""
+    print(url_str)
+    if len(http_ip) == 0 or tryNumber > 1000:
+        UpDateHttpIP()
+    elif len(http_ip) > 0:
+        try:
+            proxy_ip = GetProxy_ip()
+
+            # print('使用代理的IP:', proxy_ip)
+            html = open_url(url_str, proxy_ip)
+            tryNumber += 1
+        except Exception as e:
+            print(e)
+            html = ""
+    return html
+
+
+# 随机获取请求头
+def GetHeaders():
+    headers = {
+        "User-Agent": random.choice(user_agents),
+        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive"
+    }
+    return headers
+
+# 随机获取代理IP
+
+
+def GetProxy_ip():
+    proxy_ip = {
+        'http': random.choice(http_ip),
+    }
+    return proxy_ip
 
 
 def UpDateHttpIP():
-    info = open_url(
+    print("~~~~~~~~~~~~~~~~~~~UpdateIp~~~~~~~~~~~~~~~~~~~~")
+    global tryNumber
+    tryNumber = 0
+    http_ip = []
+
+    info = GetWebInfo(
         'http://www.89ip.cn/tqdl.html?api=1&num=30&port=&address=&isp=', '')
     target = re.compile(r';\n</script>\n.*?<br>高效')
     tuple = re.findall(target, info)
