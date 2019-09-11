@@ -370,8 +370,9 @@ def AnalysisFile(filePath):  # 分析文件
                     if tempUseKey not in bindUtils:
                         bindUtils.append(tempUseKey)
                 else:
-                    unConfigLibrary.append(
-                        os.path.basename(filePath) + '---' + info)
+                    if ('=""' not in info) and ('= ""' not in info):
+                        unConfigLibrary.append(
+                            os.path.basename(filePath) + '---' + info)
     file.close()
 
 
