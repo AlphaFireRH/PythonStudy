@@ -5,6 +5,7 @@ import os
 import Work.ExcelSet
 import Work.fileTool
 import Work.miniGame
+# from Work import *
 
 path = os.path.split(os.path.realpath(__file__))[0]
 

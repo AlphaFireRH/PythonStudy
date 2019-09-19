@@ -177,12 +177,14 @@ def Step():
 
     threads = []
     i = 0
-    while i < 6:
+    while i < 2:
         threads.append(threading.Thread(target=CheckWaitThread))
         i += 1
 
     for tempThread in threads:
         tempThread.start()
+
+    # CheckWaitThread()
 
 
 GetWaitLock = threading.Lock()
@@ -255,47 +257,72 @@ def CheckWaitThread():
         if tempToken == None:
             time.sleep(1)
         else:
-            followingNumber, followerNumber = GetFollowingAndFollowerNumber(
-                GetFollowingUrl(tempToken))
-
-            # time.sleep(1)
-
-            for num in range(1 + (followingNumber-1)//10):
-                time.sleep(random.uniform(0.02, 0.3))
-                if num == 0:
-                    GetUserTupleThread(GetFollowingUrl(tempToken))
+            followingNumber = 1
+            followerNumber = 1
+            errorNum = 0
+            while(errorNum < 5):
+                if followingNumber == 1:
+                    if GetUserTupleThread(GetFollowingUrl(tempToken)) == 0:
+                        errorNum += 1
                 else:
-                    GetUserTupleThread(GetFollowingUrl(
-                        tempToken)+'?page='+str(num+1))
-
-            for num in range(1 + (followerNumber-1)//10):
-                time.sleep(random.uniform(0.02, 0.3))
-                if num == 0:
-                    GetUserTupleThread(GetFollowersUrl(tempToken))
+                    if GetUserTupleThread(GetFollowingUrl(tempToken)+'?page='+str(followingNumber)) == 0:
+                        errorNum += 1
+                followingNumber += 1
+            errorNum = 0
+            while(errorNum < 5):
+                if followerNumber == 1:
+                    if GetUserTupleThread(GetFollowersUrl(tempToken)) == 0:
+                        errorNum += 1
                 else:
-                    GetUserTupleThread(GetFollowersUrl(
-                        tempToken)+'?page='+str(num+1))
+                    if GetUserTupleThread(GetFollowersUrl(tempToken)+'?page='+str(followerNumber)) == 0:
+                        errorNum += 1
+                followerNumber += 1
+
+            # followingNumber, followerNumber = GetFollowingAndFollowerNumber(
+            #     GetFollowingUrl(tempToken))
+            # print(str.format(
+            #     'wait check followingNumber={0},followerNumber={1}', followingNumber, followerNumber))
+            # for num in range(1 + (followingNumber-1)//10):
+            #     time.sleep(random.uniform(0.02, 0.3))
+            #     if num == 0:
+            #         GetUserTupleThread(GetFollowingUrl(tempToken))
+            #     else:
+            #         GetUserTupleThread(GetFollowingUrl(
+            #             tempToken)+'?page='+str(num+1))
+            # for num in range(1 + (followerNumber-1)//10):
+            #     time.sleep(random.uniform(0.02, 0.3))
+            #     if num == 0:
+            #         GetUserTupleThread(GetFollowersUrl(tempToken))
+            #     else:
+            #         GetUserTupleThread(GetFollowersUrl(
+            #             tempToken)+'?page='+str(num+1))
 
 
 def GetUserTupleThread(targetUrl):
     # html = GetWebInfo(targetUrl)
     html = WebRequest.open_url_random_host(targetUrl)
+    collectNum = 0
     if html != "":
+        # print(targetUrl)
+        # print(html)
         target = re.compile(r'{"id":.*?articlesCount":')
         tuple = re.findall(target, html)
+        if tuple is not None:
+            collectNum = len(tuple)
+            for index in range(len(tuple)):
+                data = tuple[index]
+                if data != None:
+                    jsonData = data + "0}"
+                    try:
+                        userDataReBuild = json.loads(jsonData)
+                        tempToken = userDataReBuild['urlToken']
+                        PushWaitThread(tempToken, userDataReBuild)
+                    except Exception as e:
+                        print(e)
 
-        for index in range(len(tuple)):
-            data = tuple[index]
-            if data != None:
-                jsonData = data + "0}"
-                try:
-                    userDataReBuild = json.loads(jsonData)
-                    tempToken = userDataReBuild['urlToken']
-                    PushWaitThread(tempToken, userDataReBuild)
-                except Exception as e:
-                    print(e)
-    #print('request...'+targetUrl)
-    #time.sleep(random.uniform(0.02, 0.3))
+    # print('request...'+targetUrl)
+    time.sleep(random.uniform(0.02, 0.3))
+    return collectNum
 
 
 def GetFollowingAndFollowerNumber(targetUrl):
@@ -307,16 +334,16 @@ def GetFollowingAndFollowerNumber(targetUrl):
     if html != "":
         try:
             target = re.compile(
-                r'<strong class="NumberBoard-itemValue" title=".*?">')
+                r'<strong title=".*?" class="NumberBoard-itemValue">.*?</strong>')
             tuple = re.findall(target, html)
-
+            print(html)
             for index in range(len(tuple)):
                 data = tuple[index]
                 if data != None:
                     data = str(data).replace(
-                        '<strong class="NumberBoard-itemValue" title="', '')
-                    data = data.replace(
-                        '">', '')
+                        '<strong title="', '')
+                    data = data[0:data.index('\"')]
+                    print('----------'+data)
                 if index == 0:
                     followingNumber = int(data)
                 else:
@@ -326,12 +353,14 @@ def GetFollowingAndFollowerNumber(targetUrl):
             UpDateHost()
             # print(info)
     time.sleep(random.uniform(0.02, 0.3))
+    if followingNumber == 0 and followerNumber == 0:
+        print(targetUrl)
     return followingNumber, followerNumber
 
 
 def UpDateHost():
     print('update')
-    # WebRequest.UpDateHttpIP()
+    WebRequest.UpDateHttpIP()
 
 
 Step()

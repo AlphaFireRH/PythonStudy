@@ -330,6 +330,7 @@ PlayViewTextControllerStr = 'PlayViewTextController.Instance.GetTextString'
 ResourceManagerStr = 'ResourceManager.TextDataPool'
 
 allKeyConfigLibrary = {}  # 所有原有配置信息
+feedbackInfo = {}
 
 
 def NotUsedLine(info):  # 是否是注释的行
@@ -378,13 +379,18 @@ def AnalysisFile(filePath):  # 分析文件
 
 def GetKeyConfigData():  # 获取原有配置文件
     global allKeyConfigLibrary
+    global feedbackInfo
     allKeyConfigLibrary = {}
+    feedbackInfo = {}
+
     for tempDir in KeyConfigArray:
         file = open(basePath+tempDir, 'r', encoding='UTF-8')
         configInfo = file.read()
         file.close()
         tempData = json.loads(configInfo)
         for dic in tempData:
+            if 'Feedback' in dic['Key']:
+                feedbackInfo[dic['Key']] = dic['Value']
             allKeyConfigLibrary[dic['Key']] = dic['Value']
 
 
@@ -407,6 +413,7 @@ def PushDataToUsedLibrary():  # 处理已使用数据
 
 def OutPutResult(filePath):  # 输出分析结果
     global currentUsedLibrary
+    global feedbackInfo
 
     tempName = filePath + "config.xlsx"
     wb = myopenpyxl.CreateNewXlsx(tempName)
@@ -429,6 +436,13 @@ def OutPutResult(filePath):  # 输出分析结果
     for data in unBindPrefabText:
         index = str(num)
         myopenpyxl.SetTargetCellPos(ws, 'D' + index, data)
+        num += 1
+
+    num = 1
+    for (k, v) in feedbackInfo.items():
+        index = str(num)
+        myopenpyxl.SetTargetCellPos(ws, 'E' + index,  k)
+        myopenpyxl.SetTargetCellPos(ws, 'F' + index,  v)
         num += 1
 
     myopenpyxl.WriteXlsx(wb, tempName)

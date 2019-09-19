@@ -12,14 +12,14 @@ import urllib3
 from bs4 import BeautifulSoup
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 user_agents = [
     "Opera/12.02 (Android 4.1; Linux; Opera Mobi/ADR-1111101157; U; en-US) Presto/2.9.201 Version/12.02",
     "Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543 Safari/419.3",
     "Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3",
     "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
 ]
 
 http_ip = [
@@ -47,7 +47,8 @@ def open_url(url_str, proxy_ip):
                             proxies=proxy_ip).content.decode('utf8')
 
     else:
-        html = requests.get(url=url_str, headers=headerInfo).content.decode('utf8')
+        html = requests.get(
+            url=url_str, headers=headerInfo).content.decode('utf8')
     # 返回网页内容,动态加载的需要另行处理
     return html
 
@@ -65,7 +66,7 @@ def GetWebInfo(url_str, proxy_ip):
         r = proxy.request('get', url_str)
         print('status ' + str(r.status))
         html = r.data.decode()
-        print(html.decode())
+        # print(html.decode())
     else:
         http = urllib3.PoolManager(timeout=30)
         r = http.request(
@@ -79,7 +80,7 @@ def GetWebInfo(url_str, proxy_ip):
 def open_url_random_host(url_str):
     global tryNumber
     html = ""
-    print(url_str)
+    # print(url_str)
     if len(http_ip) == 0 or tryNumber > 1000:
         UpDateHttpIP()
     elif len(http_ip) > 0:
