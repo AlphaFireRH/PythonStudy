@@ -167,24 +167,24 @@ def LoopSetData():
 
 def Step():
     InitGetDbData()
-    WebRequest.UpDateHttpIP()
-    WebRequest.UpDateHttpIP()
+    # WebRequest.UpDateHttpIP()
+    # WebRequest.UpDateHttpIP()
 
     if len(waitFindList) == 0:
         waitFindList.append("haozhi")
         tempWaitDic["haozhi"] = 0
     # LoopSetData()
 
-    threads = []
-    i = 0
-    while i < 2:
-        threads.append(threading.Thread(target=CheckWaitThread))
-        i += 1
+    # threads = []
+    # i = 0
+    # while i < 2:
+    #     threads.append(threading.Thread(target=CheckWaitThread))
+    #     i += 1
 
-    for tempThread in threads:
-        tempThread.start()
+    # for tempThread in threads:
+    #     tempThread.start()
 
-    # CheckWaitThread()
+    CheckWaitThread()
 
 
 GetWaitLock = threading.Lock()
@@ -299,8 +299,7 @@ def CheckWaitThread():
 
 
 def GetUserTupleThread(targetUrl):
-    # html = GetWebInfo(targetUrl)
-    html = WebRequest.open_url_random_host(targetUrl)
+    html = Request(targetUrl)
     collectNum = 0
     if html != "":
         # print(targetUrl)
@@ -329,8 +328,7 @@ def GetFollowingAndFollowerNumber(targetUrl):
     followingNumber = 0
     followerNumber = 0
 
-    html = WebRequest.open_url_random_host(targetUrl)
-    # html = GetWebInfo(targetUrl)
+    html = Request(targetUrl)
     if html != "":
         try:
             target = re.compile(
@@ -361,6 +359,12 @@ def GetFollowingAndFollowerNumber(targetUrl):
 def UpDateHost():
     print('update')
     WebRequest.UpDateHttpIP()
+
+
+def Request(targetUrl):
+    html = WebRequest.open_url_random_host(targetUrl)
+    # html = GetWebInfo(targetUrl)
+    return html
 
 
 Step()
