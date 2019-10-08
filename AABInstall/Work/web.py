@@ -184,7 +184,11 @@ def Step():
     # for tempThread in threads:
     #     tempThread.start()
 
-    CheckWaitThread()
+    while True:
+        CheckWait()
+        ShowState()
+
+    # CheckWaitThread()
 
 
 GetWaitLock = threading.Lock()
