@@ -175,18 +175,18 @@ def Step():
         tempWaitDic["haozhi"] = 0
     # LoopSetData()
 
-    # threads = []
-    # i = 0
-    # while i < 2:
-    #     threads.append(threading.Thread(target=CheckWaitThread))
-    #     i += 1
+    threads = []
+    i = 0
+    while i < 1:
+        threads.append(threading.Thread(target=CheckWaitThread))
+        i += 1
 
-    # for tempThread in threads:
-    #     tempThread.start()
+    for tempThread in threads:
+        tempThread.start()
 
-    while True:
-        CheckWait()
-        ShowState()
+    # while True:
+    #     CheckWait()
+    #     ShowState()
 
     # CheckWaitThread()
 
