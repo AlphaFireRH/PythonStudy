@@ -12,6 +12,7 @@ import mongodbTool
 import copy
 import random
 import WebRequest
+import ProxyMgr
 
 mongo = mongodbTool.MyMongoDB()
 finishMongo = mongodbTool.MyMongoDB()
@@ -41,7 +42,7 @@ def ShowState():  # 打印
 
 
 def UpDateHost():  # 更新池
-    WebRequest.UpDateHttpIP()
+    ProxyMgr.UpDateHttpIP()
 
 
 def GetFollowingUrl(targetName):

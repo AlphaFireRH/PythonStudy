@@ -79,6 +79,10 @@ def RemoveBadProxy(proxys):  # 移除无效IP
     return good
 
 
+def RemoveExceptionIp(ip):  # 移除异常IP
+    http_ip.remove(ip)
+
+
 def region():
         # '''
         # 该脚本使用说明:

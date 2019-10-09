@@ -8,8 +8,10 @@ from fake_useragent import UserAgent
 def getheaders():  # 返回一个随机的请求头  headers
     # 各种PC端
     user_agent_list_2 = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134",
         # Opera
-        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60",        "Opera/8.0 (Windows NT 5.1; U; en)",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60",
+        "Opera/8.0 (Windows NT 5.1; U; en)",
         "Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/2.0.0 Opera 9.50",
         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; en) Opera 9.50",
         # Firefox
@@ -99,9 +101,20 @@ def getheaders():  # 返回一个随机的请求头  headers
         "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
     ]
 
-    user_agent_list = user_agent_list_1+user_agent_list_2+user_agent_list_3
+    user_agent_list = user_agent_list_1 + user_agent_list_2  # +user_agent_list_3
     UserAgent = random.choice(user_agent_list)
-    headers = {'User-Agent': UserAgent}
+    headers = {'User-Agent': "User-Agent:"+UserAgent}
+    # headers = {
+    #     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    #     'user-agent': str(UserAgent),
+    #     'Connection': 'keep-alive',
+    #     'Accept-Encoding': 'gzip, deflate,br',
+    #     'Accept-Language': 'zh-Hans-CN,zh-Hans;q=0.5',
+    #     'Upgrade-Insecure-Requests': 1
+    # }
+    headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    headers['Accept-Encoding'] = 'gzip, deflate,br'
+    headers['Accept-Language'] = 'zh-Hans-CN,zh-Hans;q=0.5'
     return headers
 
 
