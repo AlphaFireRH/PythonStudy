@@ -4,14 +4,15 @@
 import io
 import sys
 import random
-import time
-import json
-import re
+import ProxyMgr
+#import time
+#import json
+#import re
 import requests
 import urllib3
-import UserAgentMgr
-import ProxyMgr
 #from bs4 import BeautifulSoup
+from UserAgentMgr import GetHeaders
+
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -22,7 +23,7 @@ tryNumber = 0
 def open_url(url_str, proxy_ip):
     url_str = url_str.replace(" ", "")
     html = ""
-    headerInfo = UserAgentMgr.GetHeaders()
+    headerInfo = GetHeaders()
     session = requests.session()
     session.headers = headerInfo
     if bool(proxy_ip):
@@ -43,7 +44,7 @@ def open_url(url_str, proxy_ip):
 def open_url_urllib3(url_str, proxyIp):
     url_str = url_str.replace(" ", "")
     html = ""
-    headerInfo = UserAgentMgr.GetHeaders()
+    headerInfo = GetHeaders()
     proxy = urllib3.ProxyManager(
         'http://'+proxyIp, headers=headerInfo)
     r = proxy.request('GET', url_str)
@@ -57,7 +58,7 @@ def open_url_urllib3(url_str, proxyIp):
 def GetWebInfo(url_str, proxy_ip):
     url_str = url_str.replace(" ", "")
     html = ""
-    headerInfo = UserAgentMgr.GetHeaders()
+    headerInfo = GetHeaders()
 
     if bool(proxy_ip):
         print(url_str)
