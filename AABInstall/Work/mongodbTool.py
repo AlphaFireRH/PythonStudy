@@ -5,7 +5,8 @@
 from pymongo import MongoClient
 
 settings = {
-    "ip": 'www.alphaFire.win',  # ip
+    "ip": '192.168.1.210',
+    # 'www.alphaFire.win',  # ip
     "port": 32768,  # 端口
     "db_name": "test",  # 默认数据库名字
     "collection_name": "test_col"  # 默认集合名字
