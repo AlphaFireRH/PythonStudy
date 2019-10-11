@@ -91,7 +91,6 @@ def BeginThread():  # 多线程 处理
     while i < 3:
         threads.append(threading.Thread(target=CheckWaitThread))
         i += 1
-
     for tempThread in threads:
         tempThread.start()
 
