@@ -113,8 +113,11 @@ def getheaders():  # 返回一个随机的请求头  headers
     #     'Upgrade-Insecure-Requests': 1
     # }
     headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    headers['Accept-Encoding'] = 'gzip, deflate,br'
+    #headers['Accept-Encoding'] = 'gzip, deflate,br'
     headers['Accept-Language'] = 'zh-Hans-CN,zh-Hans;q=0.5'
+    headers['Connection'] = 'keep-alive'
+    headers['Upgrade-Insecure-Requests'] = '1'
+
     return headers
 
 
@@ -125,4 +128,5 @@ def getHeadersFromSDK():  # 从SDK获取请求头
 
 
 def GetHeaders():  # 随机获取请求头
-    return getheaders()
+    # return getheaders()
+    return getHeadersFromSDK()

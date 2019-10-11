@@ -10,13 +10,17 @@ http_ip = []
 
 
 def GetProxy_ip():  # 随机获取代理IP
-    proxy_ip = {
-        'http': random.choice(http_ip),
-    }
-    return proxy_ip
+    if len(http_ip) == 0:
+        UpDateHttpIP()
+    # proxy_ip = {
+    #     'http': random.choice(http_ip),
+    # }
+    return random.choice(http_ip)
 
 
 def GetProxy_ip_str():  # 随机获取代理IP
+    if len(http_ip) == 0:
+        UpDateHttpIP()
     return random.choice(http_ip)
 
 

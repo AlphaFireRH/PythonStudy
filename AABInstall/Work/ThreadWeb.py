@@ -22,7 +22,7 @@ maxUserNumber = 100000000
 # https://www.zhihu.com/people/haozhi/following
 base = 'href="//www.zhihu.com/people/'
 
-
+timeScale = 1
 finishFindDic = {}
 collectList = {}
 insertList = []
@@ -39,6 +39,13 @@ def ShowState():  # 打印
     print("now collect " + str(len(collectList)))
     print("now finish " + str(len(finishFindDic)))
     print("wait " + str(len(waitFindList)))
+
+
+def ShowThreadingInfo():
+    # 1 获取线程ID,NAME
+    t = threading.currentThread()
+    # 线程ID
+    print('Thread id : %d' % t.ident)
 
 
 def UpDateHost():  # 更新池
@@ -137,41 +144,45 @@ def PushWaitThread(tempToken, userDataReBuild):
 def CheckWaitThread():
     while(len(waitFindList)):
         tempToken = GetWaitThread()
-        if tempToken == None:
-            time.sleep(1)
-        else:
-            followingNumber = 1
-            followerNumber = 1
-            errorNum = 0
-            while(errorNum < 5):
-                if followingNumber == 1:
-                    if GetUserTupleThread(GetFollowingUrl(tempToken)) == 0:
-                        errorNum += 1
+        try:
+            if tempToken == None:
+                time.sleep(1 * timeScale)
+            else:
+                followingNumber = 1
+                followerNumber = 1
+                errorNum = 0
+                while(errorNum < 5):
+                    if followingNumber == 1:
+                        if GetUserTupleThread(GetFollowingUrl(tempToken)) == 0:
+                            errorNum += 1
+                        else:
+                            errorNum = 0
                     else:
-                        errorNum = 0
-                else:
-                    if GetUserTupleThread(GetFollowingUrl(tempToken)+'?page='+str(followingNumber)) == 0:
-                        errorNum += 1
+                        if GetUserTupleThread(GetFollowingUrl(tempToken)+'?page='+str(followingNumber)) == 0:
+                            errorNum += 1
+                        else:
+                            errorNum = 0
+                    followingNumber += 1
+                errorNum = 0
+                while(errorNum < 5):
+                    if followerNumber == 1:
+                        if GetUserTupleThread(GetFollowersUrl(tempToken)) == 0:
+                            errorNum += 1
+                        else:
+                            errorNum = 0
                     else:
-                        errorNum = 0
-                followingNumber += 1
-            errorNum = 0
-            while(errorNum < 5):
-                if followerNumber == 1:
-                    if GetUserTupleThread(GetFollowersUrl(tempToken)) == 0:
-                        errorNum += 1
-                    else:
-                        errorNum = 0
-                else:
-                    if GetUserTupleThread(GetFollowersUrl(tempToken)+'?page='+str(followerNumber)) == 0:
-                        errorNum += 1
-                    else:
-                        errorNum = 0
-                followerNumber += 1
+                        if GetUserTupleThread(GetFollowersUrl(tempToken)+'?page='+str(followerNumber)) == 0:
+                            errorNum += 1
+                        else:
+                            errorNum = 0
+                    followerNumber += 1
+        except Exception as e:
+            print(e)
     print("****** all finish ******")
 
 
 def GetUserTupleThread(targetUrl):
+    ShowThreadingInfo()
     html = Request(targetUrl)
     collectNum = 0
     if html != "":
@@ -189,11 +200,12 @@ def GetUserTupleThread(targetUrl):
                         PushWaitThread(tempToken, userDataReBuild)
                     except Exception as e:
                         print(e)
-    time.sleep(random.uniform(0.02, 0.3))
+    time.sleep(random.uniform(1 * timeScale, 3 * timeScale))
     return collectNum
 
 
 def GetFollowingAndFollowerNumber(targetUrl):
+    ShowThreadingInfo()
     followingNumber = 0
     followerNumber = 0
 
@@ -218,7 +230,7 @@ def GetFollowingAndFollowerNumber(targetUrl):
         except Exception as e:
             print(e)
             UpDateHost()
-    time.sleep(random.uniform(0.02, 0.3))
+    time.sleep(random.uniform(1 * timeScale, 3 * timeScale))
     if followingNumber == 0 and followerNumber == 0:
         print(targetUrl)
     return followingNumber, followerNumber
