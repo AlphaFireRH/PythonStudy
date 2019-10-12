@@ -5,6 +5,7 @@ import random
 import requests
 import json
 import re
+import CleanProxyIP
 
 http_ip = []
 
@@ -30,6 +31,8 @@ def UpDateHttpIP():  # 更新IP
     while(True):
         PushInPool()
         http_ip = RemoveBadProxy(http_ip)
+        http_ip = CleanProxyIP.CheckProxyIPStatus(http_ip)
+        print('success proxy num : ', len(http_ip))
         if len(http_ip) > 0:
             break
 
@@ -78,7 +81,6 @@ def RemoveBadProxy(proxys):  # 移除无效IP
             # print proxy_host, 'bad proxy'
             badNum += 1
             continue
-    print('success proxy num : ', goodNum)
     print('bad proxy num : ', badNum)
     return good
 
@@ -142,3 +144,11 @@ def region():
 
         # print("执行结束")
     UpDateHttpIP()
+
+
+def main():
+    GetProxy_ip_str()
+
+
+if __name__ == '__main__':
+    main()

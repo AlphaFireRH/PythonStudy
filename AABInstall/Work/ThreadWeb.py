@@ -41,7 +41,7 @@ def ShowState():  # 打印
     print("wait " + str(len(waitFindList)))
 
 
-def ShowThreadingInfo():
+def ShowThreadingInfo():  # 打印线程信息
     # 1 获取线程ID,NAME
     t = threading.currentThread()
     # 线程ID
@@ -89,6 +89,7 @@ def InitGetDbData():  # 还原库
         if (target not in finishFindDic) and (target not in tempWaitDic):
             tempWaitDic[target] = x['followerCount']
             waitFindList.append(target)
+    ShowState()
     print("请求完毕")
 
 
@@ -236,6 +237,11 @@ def GetFollowingAndFollowerNumber(targetUrl):
     return followingNumber, followerNumber
 
 
-InitGetDbData()
-InitDB()
-BeginThread()
+def main():
+    InitGetDbData()
+    InitDB()
+    BeginThread()
+
+
+if __name__ == '__main__':
+    main()

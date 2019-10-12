@@ -111,10 +111,17 @@ def open_url_random_host(url_str):
         time.sleep(random.uniform(1, 3))
     return html
 
-# proxyIp = ProxyMgr.GetProxy_ip_str()
-# open_url_urllib3(
-#     "https://www.zhihu.com/people/guo-zi-501/following", proxyIp['http'])
-# print(open_url("https://www.zhihu.com/people/guo-zi-501/following",
-#                {'http': '120.83.109.68:9999'}))
 
-# "https: // www.zhihu.com/people/zhang-xiao-bei/following?page = 3 https: // www.zhihu.com/people/tian-ji-shun/following?page = 3 https: // www.zhihu.com/people/warfalcon/following?page = 2 https: // www.zhihu.com/people/zhang-xiao-bei/following?page = 4 https: // www.zhihu.com/people/warfalcon/followers?page = 2 "
+def main():
+    # proxyIp = ProxyMgr.GetProxy_ip_str()
+    # open_url_urllib3(
+    #     "https://www.zhihu.com/people/guo-zi-501/following", proxyIp['http'])
+    # print(open_url("https://www.zhihu.com/people/guo-zi-501/following",
+    #                {'http': '120.83.109.68:9999'}))
+
+    print(open_url_random_host("https://www.zhihu.com/people/guo-zi-501/following"))
+    # "https: // www.zhihu.com/people/zhang-xiao-bei/following?page = 3 https: // www.zhihu.com/people/tian-ji-shun/following?page = 3 https: // www.zhihu.com/people/warfalcon/following?page = 2 https: // www.zhihu.com/people/zhang-xiao-bei/following?page = 4 https: // www.zhihu.com/people/warfalcon/followers?page = 2 "
+
+
+if __name__ == '__main__':
+    main()
