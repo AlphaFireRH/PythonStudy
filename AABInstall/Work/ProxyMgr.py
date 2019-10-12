@@ -3,9 +3,11 @@
 
 import random
 import requests
+import urllib3
 import json
 import re
 import CleanProxyIP
+from UserAgentMgr import GetHeaders
 
 http_ip = []
 
@@ -25,13 +27,26 @@ def GetProxy_ip_str():  # 随机获取代理IP
     return random.choice(http_ip)
 
 
+def GetWebInfo(url_str):
+    url_str = url_str.replace(" ", "")
+    html = ""
+    headerInfo = GetHeaders()
+
+    http = urllib3.PoolManager(timeout=30)
+    r = http.request(
+        'GET', url_str, headers=headerInfo
+    )
+    if r.status == 200:
+            html = r.data.decode('utf-8')
+    return (html)
+
 def UpDateHttpIP():  # 更新IP
     print("~~~~~~~~~~~~~~~~~~~UpdateIp~~~~~~~~~~~~~~~~~~~~")
     global http_ip
     while(True):
         PushInPool()
         http_ip = RemoveBadProxy(http_ip)
-        http_ip = CleanProxyIP.CheckProxyIPStatus(http_ip)
+        http_ip = CleanProxyIP.CheckProxyIPStatus2(http_ip)
         print('success proxy num : ', len(http_ip))
         if len(http_ip) > 0:
             break
@@ -44,6 +59,31 @@ def PushInPool():  # 新IP入池
     if response.status_code == 200:
         target = re.compile(r';\n</script>\n.*?<br>高效')
         tuple = re.findall(target, response.content.decode('utf8'))
+        for index in range(len(tuple)):
+            data = tuple[index]
+            if data != None:
+                data = str(data).replace(';\n</script>\n', '')
+                data = str(data).replace('<br>高效', '')
+                values = data.split('<br>')
+                try:
+                    for tempIp in values:
+                        if tempIp not in http_ip:
+                            http_ip.append(tempIp)
+                except Exception as e:
+                    print(e)
+
+
+def PushInPoolXici():  # 新IP入池
+    global http_ip
+    session = requests.session()
+
+    r = session.get("https://www.xicidaili.com/wn", allow_redirects=True)
+    if r.status_code == 200:
+        html = str(r.content, encoding='utf-8')
+        print(html)
+        return
+        target = re.compile(r';\n</script>\n.*?<br>高效')
+        tuple = re.findall(target, html)
         for index in range(len(tuple)):
             data = tuple[index]
             if data != None:
@@ -147,7 +187,9 @@ def region():
 
 
 def main():
-    GetProxy_ip_str()
+    # PushInPoolXici()
+    # GetProxy_ip_str()
+    print(GetWebInfo("https://www.xicidaili.com/wn"))
 
 
 if __name__ == '__main__':
