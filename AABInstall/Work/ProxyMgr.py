@@ -46,10 +46,10 @@ def UpDateHttpIP():  # 更新IP
     print("~~~~~~~~~~~~~~~~~~~UpdateIp~~~~~~~~~~~~~~~~~~~~")
     global http_ip
     while(True):
-        # PushInPool()
-        PushInPoolXici()
+        PushInPool()
+        # PushInPoolXici()
         http_ip = RemoveBadProxy(http_ip)
-        http_ip = CleanProxyIP.CheckProxyIPStatus4(http_ip)
+        # http_ip = CleanProxyIP.CheckProxyIPStatus1(http_ip)
         print('success proxy num : ', len(http_ip))
         if len(http_ip) > 0:
             break
