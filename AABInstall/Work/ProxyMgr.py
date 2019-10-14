@@ -8,6 +8,7 @@ import json
 import re
 import CleanProxyIP
 from UserAgentMgr import GetHeaders
+import tool_file
 
 http_ip = []
 
@@ -37,16 +38,18 @@ def GetWebInfo(url_str):
         'GET', url_str, headers=headerInfo
     )
     if r.status == 200:
-            html = r.data.decode('utf-8')
+        html = r.data.decode('utf-8')
     return (html)
+
 
 def UpDateHttpIP():  # 更新IP
     print("~~~~~~~~~~~~~~~~~~~UpdateIp~~~~~~~~~~~~~~~~~~~~")
     global http_ip
     while(True):
-        PushInPool()
+        # PushInPool()
+        PushInPoolXici()
         http_ip = RemoveBadProxy(http_ip)
-        http_ip = CleanProxyIP.CheckProxyIPStatus2(http_ip)
+        http_ip = CleanProxyIP.CheckProxyIPStatus4(http_ip)
         print('success proxy num : ', len(http_ip))
         if len(http_ip) > 0:
             break
@@ -73,29 +76,43 @@ def PushInPool():  # 新IP入池
                     print(e)
 
 
-def PushInPoolXici():  # 新IP入池
-    global http_ip
-    session = requests.session()
+def PushInPoolXici():
+    GetXiciIp("https://www.xicidaili.com/wn")
+    GetXiciIp("https://www.xicidaili.com/wn/2")
+    GetXiciIp("https://www.xicidaili.com/wn/3")
+    GetXiciIp("https://www.xicidaili.com/wn/4")
 
-    r = session.get("https://www.xicidaili.com/wn", allow_redirects=True)
-    if r.status_code == 200:
-        html = str(r.content, encoding='utf-8')
-        print(html)
-        return
-        target = re.compile(r';\n</script>\n.*?<br>高效')
-        tuple = re.findall(target, html)
+
+def GetXiciIp(url_str):  # 新IP入池
+    global http_ip
+    html = GetWebInfo(url_str)
+    target = re.compile(r'<tr class=".*?<a href="', re.S)
+    tuple = re.findall(target, html)
+    for index in range(len(tuple)):
+        data = tuple[index]
+        if data != None:
+            data = str(data).strip().replace('\n', '').replace('\r', '')
+            tempIpValue = GetXiciProxyIPInfo(data)
+            http_ip.append(tempIpValue)
+
+
+def GetXiciProxyIPInfo(data):
+    ipInfo = ""
+    target = re.compile(r'<td>.*?</td>')
+    tuple = re.findall(target, data)
+    try:
         for index in range(len(tuple)):
             data = tuple[index]
             if data != None:
-                data = str(data).replace(';\n</script>\n', '')
-                data = str(data).replace('<br>高效', '')
-                values = data.split('<br>')
-                try:
-                    for tempIp in values:
-                        if tempIp not in http_ip:
-                            http_ip.append(tempIp)
-                except Exception as e:
-                    print(e)
+                data = CleanProxyIP.GetIPString(data)
+                if index == 0:
+                    ipInfo += data
+                    ipInfo += ":"
+                elif index == 1:
+                    ipInfo += data
+    except Exception as e:
+        print(str(e))
+    return ipInfo
 
 
 def RemoveBadProxy(proxys):  # 移除无效IP
@@ -187,9 +204,7 @@ def region():
 
 
 def main():
-    # PushInPoolXici()
-    # GetProxy_ip_str()
-    print(GetWebInfo("https://www.xicidaili.com/wn"))
+    UpDateHttpIP()
 
 
 if __name__ == '__main__':
