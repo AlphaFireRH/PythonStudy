@@ -1,16 +1,20 @@
 #!use/bin/env python3
 # -*- coding utf-8 -*-
 
+import json
 import random
+import re
+
 import requests
 import urllib3
-import json
-import re
+
 import CleanProxyIP
 from UserAgentMgr import GetHeaders
-import tool_file
+
+# import tool_file
 
 http_ip = []
+maxIPNum = 300
 
 
 def GetProxy_ip():  # 随机获取代理IP
@@ -74,6 +78,17 @@ def PushInPool():  # 新IP入池
                             http_ip.append(tempIp)
                 except Exception as e:
                     print(e)
+    RemoveMoreIp()
+
+
+def RemoveMoreIp():  # 移除过多的IP
+    global http_ip
+    try:
+        nowNum = len(http_ip)
+        if nowNum > maxIPNum:
+            http_ip = http_ip[nowNum-maxIPNum]
+    except Exception as e:
+        print(e)
 
 
 def PushInPoolXici():

@@ -44,6 +44,14 @@ def WriteText(info, targetPath):
     fo.close()
 
 
+def WriteTextForByte(info, targetPath):
+    DeleteFile(targetPath)
+
+    fo = open(targetPath, "wb+")
+    fo.write(info.encode('utf-8'))
+    fo.close()
+
+
 def ReadText(targetPath):
     info = ""
     fo = open(targetPath, "r")
@@ -52,9 +60,9 @@ def ReadText(targetPath):
     return info
 
 
-def WriteTextForByte(info, targetPath):
-    DeleteFile(targetPath)
-
-    fo = open(targetPath, "wb+")
-    fo.write(info.encode('utf-8'))
+def ReadTextForByte(targetPath):
+    info = ""
+    fo = open(targetPath, "rb")
+    info = fo.read()
     fo.close()
+    return info
