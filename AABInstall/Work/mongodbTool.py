@@ -100,6 +100,11 @@ class MyMongoDB(object):
         data = self.my_col.remove(dic)
         return data
 
+    def UpdateOneDic(self, dic):
+        print("update...")
+        data = self.my_col.update(dic)
+        return data
+
     def Update(self, dic, newdic):
         print("update...")
         data = self.my_col.update(dic, newdic)
@@ -109,7 +114,7 @@ class MyMongoDB(object):
     # { "name": "RUNOOB" }
     def FindData(self, info):
         print("find...")
-        result = self.my_col.find(info)
+        result = self.my_col.find_one(info)
         return result
 
     def FindDataLimit(self, dic, number):
@@ -140,6 +145,15 @@ class MyMongoDB(object):
     def FindTargetValue(self, info):
         print("find...")
         result = self.my_col.find({}, info)
+        return result
+
+    # 查找指定字段
+    # 我们可以使用 find() 方法来查询指定字段的数据，将要返回的字段对应值设置为 1。
+    #{{},{ "_id": 0, "name": 1, "alexa": 1 }}
+    # 除了 _id 你不能在一个对象中同时指定 0 和 1，如果你设置了一个字段为 0，则其他都为 1，反之亦然。
+    def FindTargetValueOne(self, info):
+        print("find...")
+        result = self.my_col.find_one({}, info)
         return result
 
     # 查找指定字段
