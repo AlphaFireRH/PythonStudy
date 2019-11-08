@@ -12,6 +12,8 @@ settings = {
     "collection_name": "test_col"  # 默认集合名字
 }
 
+batch_size = 2000
+
 
 class MyMongoDB(object):
     def __init__(self):
@@ -112,30 +114,47 @@ class MyMongoDB(object):
 
     # 根据条件查找
     # { "name": "RUNOOB" }
-    def FindData(self, info):
+    def FindDataOne(self, info):
         print("find...")
         result = self.my_col.find_one(info)
         return result
 
+    # 根据条件查找
+    # { "name": "RUNOOB" }
+    def FindData(self, info):
+        print("find...")
+        result = self.my_col.find(info).batch_size(batch_size)
+        return result
+
+    # 根据条件查找
+    # { "name": "RUNOOB" }
+    def FindDataAndResultFormat(self, info, resultFormat):
+        print("find...")
+        result = self.my_col.find(
+            info, resultFormat, no_cursor_timeout=True).batch_size(batch_size)
+        return result
+
+    # 根据条件查找
+    # { "name": "RUNOOB" }
     def FindDataLimit(self, dic, number):
         print("find...")
-        data = self.my_col.find(dic).limit(number)
+        data = self.my_col.find(dic).limit(number).batch_size(batch_size)
         return data
 
     def FindDataSortL2B(self, dic, number, sortKey):
         print("find...")
-        data = self.my_col.find(dic).sort(sortKey)
+        data = self.my_col.find(dic).sort(sortKey).batch_size(batch_size)
         return data
 
     def FindDataSortB2L(self, dic, number, sortKey):
         print("find...")
-        data = self.my_col.find(dic).sort(sortKey, -1)
+        data = self.my_col.find(dic).sort(sortKey, -1).batch_size(batch_size)
         return data
 
     # 根据条件查找
     def FindDataWithCollection(self, collection, info):
         print("find...")
-        result = collection.find(info)
+        result = collection.find(info).batch_size(batch_size)
         return result
 
     # 查找指定字段
@@ -144,7 +163,7 @@ class MyMongoDB(object):
     # 除了 _id 你不能在一个对象中同时指定 0 和 1，如果你设置了一个字段为 0，则其他都为 1，反之亦然。
     def FindTargetValue(self, info):
         print("find...")
-        result = self.my_col.find({}, info)
+        result = self.my_col.find({}, info).batch_size(batch_size)
         return result
 
     # 查找指定字段
@@ -159,7 +178,7 @@ class MyMongoDB(object):
     # 查找指定字段
     def FindTargetValueWithCollection(self, collection, info):
         print("find...")
-        result = collection.find({}, info)
+        result = collection.find({}, info).batch_size(batch_size)
         return result
 
 

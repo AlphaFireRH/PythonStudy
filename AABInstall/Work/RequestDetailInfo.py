@@ -11,13 +11,27 @@ import random
 import WebRequest
 
 mongo = mongodbTool.MyMongoDB()
+finishMongo = mongodbTool.MyMongoDB()
+finishMongo.SetDB(finishMongo.GetDBWithName("finishdetaildb"))
+finishMongo.SetCollection(finishMongo.GetCollectionWithName("finishdetailcol"))
 base = 'href="//www.zhihu.com/people/'
 
+requestMaxValue = 4000
 timeScale = 1
+finishDic = {}
+waitList = []
+
+GetWaitLock = threading.Lock()
+
+
+def ShowState():  # 打印
+    print("changeUser")
+    print("now finish " + str(len(finishDic)))
+    print("wait " + str(len(waitList)))
 
 
 def Request(targetUrl):  # 请求网络数据
-    return WebRequest.GetWebInfo(targetUrl, False)
+    return WebRequest.open_url_random_host(targetUrl)
 
 
 def GetFollowingUrl(targetName):
@@ -25,38 +39,85 @@ def GetFollowingUrl(targetName):
 
 
 def GetOneKey():  # 获取key
-    dbData = mongo.FindData({"simpleInfo": None})
-    return dbData
+    global waitList
+    GetWaitLock.acquire()
+    if len(waitList) > 0:
+        target = waitList[0]
+        waitList.remove(target)
+        dbData = mongo.FindDataOne({"urlToken": target})
+        GetWaitLock.release()
+        return dbData
+    else:
+        GetWaitLock.release()
+        return None
+
+
+def TrySleep():
+    time.sleep(random.uniform(1 * timeScale, 3 * timeScale))
 
 
 def BeginThread():  # 多线程 处理
-    CheckWaitThread()
-    # threads = []
-    # i = 0
-    # while i < 3:
-    #     threads.append(threading.Thread(target=CheckWaitThread))
-    #     i += 1
-    # for tempThread in threads:
-    #     tempThread.start()
+    threads = []
+    i = 0
+    while i < 3:
+        threads.append(threading.Thread(target=CheckWaitThread))
+        i += 1
+    for tempThread in threads:
+        tempThread.start()
 
 
 def UpdateDic(dbData, newDic):
+    global finishDic
     mongo.Update(dbData, newDic)
+    tempToken = newDic["urlToken"]
+    finishDic[tempToken] = True
+    dic = {}
+    dic["tempToken"] = tempToken
+    finishMongo.InsertDict(dic)
 
 
-def CheckWaitThread():
+def InitData():  # 初始化数据
+    InitFinishData()
+    InitWaitData()
+
+
+def InitFinishData():
+    global finishDic
+    finishDic = {}
+    for x in finishMongo.FindTargetValue({"_id": 0}):
+        target = x['tempToken']
+        if target not in finishDic:
+            finishDic[target] = True
+
+
+def InitWaitData():
+    global waitList
+    dbData = mongo.FindDataLimit({"simpleInfo": None}, requestMaxValue)
+    for x in dbData:
+        target = x['urlToken']
+        if target not in waitList:
+            if target not in finishDic:
+                waitList.append(target)
+
+
+def CheckWaitThread():  # 更新数据
     while True:
         dbData = GetOneKey()
-        if dbData:
-            url = GetFollowingUrl(dbData['urlToken'])
-            requestData = Request(url)
-            dic = AnalysisData(requestData, dbData)
-            if dic['simpleInfo'] != None and len(dic['simpleInfo']) > 0:
-                print(dic['simpleInfo'])
-                UpdateDic(dbData, dic)
-        else:
-            break
-        time.sleep(random.uniform(1 * timeScale, 3 * timeScale))
+        try:
+            if dbData != None:
+                url = GetFollowingUrl(dbData['urlToken'])
+                for i in range(20):
+                    TrySleep()
+                    requestData = Request(url)
+                    dic = AnalysisData(requestData, dbData)
+                    if dic['simpleInfo'] != None and len(dic['simpleInfo']) > 0:
+                        UpdateDic(dbData, dic)
+                        break
+            else:
+                InitWaitData()
+            ShowState()
+        except Exception as e:
+            print(e)
 
 
 def AnalysisData(html, dbData):
@@ -100,6 +161,7 @@ def GetNumberString(target):
 
 
 def main():
+    InitData()
     BeginThread()
 
 
