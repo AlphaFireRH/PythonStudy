@@ -34,7 +34,7 @@ def Request(targetUrl):  # 请求网络数据
     return WebRequest.open_url_random_host(targetUrl)
 
 
-def GetFollowingUrl(targetName):
+def GetFollowingUrl(targetName):  # 拼接连接地址
     return "https://www.zhihu.com/people/"+targetName+"/following"
 
 
@@ -52,7 +52,7 @@ def GetOneKey():  # 获取key
         return None
 
 
-def TrySleep():
+def TrySleep():  # 延时等待
     time.sleep(random.uniform(1 * timeScale, 3 * timeScale))
 
 
@@ -66,14 +66,21 @@ def BeginThread():  # 多线程 处理
         tempThread.start()
 
 
-def UpdateDic(dbData, newDic):
+def UpdateDic(dbData, newDic, setStatusOnly):  # 更新数据库数据
     global finishDic
     mongo.Update(dbData, newDic)
     tempToken = newDic["urlToken"]
-    finishDic[tempToken] = True
-    dic = {}
-    dic["tempToken"] = tempToken
-    finishMongo.InsertDict(dic)
+    if not setStatusOnly:
+        finishDic[tempToken] = True
+        dic = {}
+        dic["tempToken"] = tempToken
+        finishMongo.InsertDict(dic)
+
+
+def SetStatusOnly(dbData):  # 查询不到 仅改变状态 以后再查
+    dic = copy.deepcopy(dbData)
+    dic['setStatusOnly'] = True
+    UpdateDic(dbData, dic, True)
 
 
 def InitData():  # 初始化数据
@@ -92,12 +99,23 @@ def InitFinishData():
 
 def InitWaitData():
     global waitList
-    dbData = mongo.FindDataLimit({"simpleInfo": None}, requestMaxValue)
+    global finishDic
+    dbData = mongo.FindDataLimit(
+        {"simpleInfo": None, "setStatusOnly": None}, requestMaxValue)
+    num = 0
     for x in dbData:
         target = x['urlToken']
         if target not in waitList:
             if target not in finishDic:
                 waitList.append(target)
+            else:
+                tempData = mongo.FindDataOne({"urlToken": target})
+                if tempData:
+                    SetStatusOnly(tempData)
+                num += 1
+    print(num)
+    print(len(finishDic))
+    print(len(waitList))
 
 
 def CheckWaitThread():  # 更新数据
@@ -106,13 +124,18 @@ def CheckWaitThread():  # 更新数据
         try:
             if dbData != None:
                 url = GetFollowingUrl(dbData['urlToken'])
+                finishStatus = False
                 for i in range(20):
                     TrySleep()
                     requestData = Request(url)
                     dic = AnalysisData(requestData, dbData)
                     if dic['simpleInfo'] != None and len(dic['simpleInfo']) > 0:
-                        UpdateDic(dbData, dic)
+                        dic['setStatusOnly'] = False
+                        UpdateDic(dbData, dic, False)
+                        finishStatus = True
                         break
+                if not finishStatus:
+                    SetStatusOnly(dbData)
             else:
                 InitWaitData()
             ShowState()
@@ -162,7 +185,7 @@ def GetNumberString(target):
 
 def main():
     InitData()
-    BeginThread()
+    # BeginThread()
 
 
 if __name__ == '__main__':
