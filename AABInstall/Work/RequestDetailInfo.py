@@ -185,7 +185,7 @@ def GetNumberString(target):
 
 def main():
     InitData()
-    # BeginThread()
+    BeginThread()
 
 
 if __name__ == '__main__':
