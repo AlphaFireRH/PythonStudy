@@ -44,8 +44,8 @@ def GetOneKey():  # 获取key
     if len(waitList) > 0:
         target = waitList[0]
         waitList.remove(target)
-        dbData = mongo.FindDataOne({"urlToken": target})
         GetWaitLock.release()
+        dbData = mongo.FindDataOne({"urlToken": target})
         return dbData
     else:
         GetWaitLock.release()

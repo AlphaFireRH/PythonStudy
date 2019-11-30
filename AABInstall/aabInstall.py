@@ -39,9 +39,10 @@ def GetShowInfo():
     info += ('5、normal install pak: \n')
     info += ('6、show all log: \n')
     info += ('7、show error log: \n')
-    info += ('8、show apk info: \n')
-    info += ('9、show installed info: \n')
-    info += ('10、Excel to json: \n')
+    info += ('8、clean log: \n')
+    info += ('9、show apk info: \n')
+    info += ('10、show installed info: \n')
+    info += ('11、Excel to json: \n')
 
     info += ('100、test: \n')
 
@@ -66,18 +67,20 @@ while True:
     elif val == 6:
         Work.fileTool.ShowAllLog()
     elif val == 7:
-        Work.fileTool.ShowErrorLog()
+        Work.fileTool.ShowErrorLog()	
     elif val == 8:
-        Work.fileTool.ShowApkInfoFromAAPT(GetInput())
+        Work.fileTool.CleanLog()
     elif val == 9:
-        Work.fileTool.ShowInstalledInfoFromAAPT(GetInput())
+        Work.fileTool.ShowApkInfoFromAAPT(GetInput())
     elif val == 10:
-        Work.ExcelSet.ThemeExcelToJson(GetInput())
+        Work.fileTool.ShowInstalledInfoFromAAPT(GetInput())
     elif val == 11:
-        Work.ExcelSet.EmojiEffectToJson(GetInput())
+        Work.ExcelSet.ThemeExcelToJson(GetInput())
     elif val == 12:
-        Work.miniGame.LevelDataToJson(GetInput())
+        Work.ExcelSet.EmojiEffectToJson(GetInput())
     elif val == 13:
+        Work.miniGame.LevelDataToJson(GetInput())
+    elif val == 14:
         Work.miniGame.WordDataToJson(GetInput())
 
 # elif val==100:

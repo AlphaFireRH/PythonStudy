@@ -113,6 +113,13 @@ def ShowErrorLog():
     cmdInfo = adbPath + spaceStr + "logcat -s Unity:e"
     os.system(cmdInfo)
     os.system('exit')
+	
+# 展示错误log
+def CleanLog():
+    os.system("chcp 65001")
+    cmdInfo = adbPath + spaceStr + "logcat -c"
+    os.system(cmdInfo)
+    os.system('exit')
 
 
 # 查看安装包信息
