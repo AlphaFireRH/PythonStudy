@@ -4,23 +4,92 @@
 import os
 import shutil
 import stat
+import hashlib
+import math
+from decimal import *
 
 path = os.path.split(os.path.realpath(__file__))[0]
 
 
-# 删除文件
-def DeleteFile(path):
+def FileExists(path):
+    if os.path.isfile(path):
+        return True
+    return False
+
+
+def GetMD5(targetPath):  # 获取md5值
+    if not os.path.isfile(targetPath):
+        return
+    myhash = hashlib.md5()
+    f = open(targetPath, 'rb')
+    while True:
+        b = f.read(8096)
+        if not b:
+            break
+        myhash.update(b)
+    f.close()
+    return myhash.hexdigest()
+
+
+def GetFileSize(targetPath):  # 获取文件体积
+    file_size = float(os.stat(targetPath).st_size)
+    targetValue = ""
+    for i in range(5):
+        if i > 0:
+            index = 5-i
+            if(file_size > math.pow(1024, index)):
+                result = float("%0.2f" % (file_size/math.pow(1024, index)))
+                targetValue = str(result)
+                if index == 5:
+                    targetValue = targetValue+"P"
+                if index == 4:
+                    targetValue = targetValue+"T"
+                if index == 3:
+                    targetValue = targetValue+"G"
+                if index == 2:
+                    targetValue = targetValue+"M"
+                if index == 1:
+                    targetValue = targetValue+"K"
+                break
+
+    return targetValue
+
+
+def DeleteFile(path):  # 删除文件
     if (os.path.exists(path)):
         os.remove(path)
 
-# 删除文件夹
+
+def RenameFile(srcfile, dstfile):  # 重命名文件
+    if (os.path.exists(srcfile)):
+        os.rename(srcfile, dstfile)
 
 
-def CreateDir(path):
+def MoveFile(srcfile, dstfile):  # 移动文件
+    if not os.path.isfile(srcfile):
+        print("%s not exist!" % (srcfile))
+    else:
+        fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)  # 创建路径
+        shutil.move(srcfile, dstfile)  # 移动文件
+
+
+def CopyFile(srcfile, dstfile):  # 复制文件
+    if not os.path.isfile(srcfile):
+        print("%s not exist!" % (srcfile))
+    else:
+        fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)  # 创建路径
+        shutil.copyfile(srcfile, dstfile)  # 复制文件
+
+
+def CreateDir(path):  # 创建文件夹
     os.mkdir(path)
 
 
-def DeleteDir(rootdir):
+def DeleteDir(rootdir):  # 删除文件夹
     if (os.path.exists(rootdir)):
         filelist = []
         filelist = os.listdir(rootdir)  # 列出该目录下的所有文件名

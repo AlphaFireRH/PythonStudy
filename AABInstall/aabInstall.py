@@ -67,7 +67,7 @@ while True:
     elif val == 6:
         Work.fileTool.ShowAllLog()
     elif val == 7:
-        Work.fileTool.ShowErrorLog()	
+        Work.fileTool.ShowErrorLog()
     elif val == 8:
         Work.fileTool.CleanLog()
     elif val == 9:
