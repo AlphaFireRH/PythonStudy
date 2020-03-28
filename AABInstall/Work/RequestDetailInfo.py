@@ -100,6 +100,10 @@ def InitFinishData():
 def InitWaitData():
     global waitList
     global finishDic
+    setStatusOnly = mongo.FindDataLimit(
+        {"setStatusOnly": True}, 100000000)
+    print(setStatusOnly.count())
+
     dbData = mongo.FindDataLimit(
         {"simpleInfo": None, "setStatusOnly": None}, requestMaxValue)
     num = 0
@@ -113,9 +117,11 @@ def InitWaitData():
                 if tempData:
                     SetStatusOnly(tempData)
                 num += 1
+
     print(num)
     print(len(finishDic))
     print(len(waitList))
+    print(setStatusOnly)
 
 
 def CheckWaitThread():  # 更新数据
@@ -125,7 +131,7 @@ def CheckWaitThread():  # 更新数据
             if dbData != None:
                 url = GetFollowingUrl(dbData['urlToken'])
                 finishStatus = False
-                for i in range(20):
+                for i in range(5):
                     TrySleep()
                     requestData = Request(url)
                     dic = AnalysisData(requestData, dbData)
