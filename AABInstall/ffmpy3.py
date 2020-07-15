@@ -6,6 +6,8 @@
 # pip install opencv-python
 
 import Work.ffmpeg.video as ffVideo
+import os
+import shutil
 # import cv2
 # import numpy as np
 # from PIL import ImageGrab
@@ -85,7 +87,14 @@ def f4():
 
 
 def GetImageForKey(videoPath):
-    fileName = videoPath+".Image"
+    dirPath = os.path.dirname(videoPath) + "\\Images\\"
+    if not os.path.exists(dirPath):
+        os.mkdir(dirPath)
+    else:
+        allFile = os.listdir(dirPath)
+        for fileName in allFile:
+            os.remove(dirPath+fileName)
+    fileName = dirPath+"Image"
     state = ffVideo.video_trans_img(videoPath, fileName, "1")
     print(state)
     # ffmpeg - i inputfile.avi - r 1 - s 4cif - f image2 image-%05d.jpeg
@@ -96,4 +105,5 @@ def GetImageForKey(videoPath):
 
 
 if __name__ == '__main__':
-    GetImageForKey("d:\item.mp4")  # GetInput())
+    # GetImageForKey("d:\\Images\item.mp4")  # GetInput()
+    GetImageForKey(GetInput())
