@@ -182,12 +182,12 @@ class MyMongoDB(object):
         return result
 
 
-#mongo = MyMongoDB()
+# mongo = MyMongoDB()
 # dic={"name":"zhangsan","age":18}
 # find={"name":"zhangsan"}
 # print(mongo.update(dic,{"name":"zhangsan","age":20}))
 # print(mongo.InsertDict(dic))
-# print(mongo.FindTargetValue({"urlToken":"lei-shen-fen"}))
+# print(mongo.FindTargetValue({"urlToken": "lei-shen-fen"}))
 # print(mongo.Update(dic,find))
-# for x in mongo.Find({"userType": 0}):
-#	print(x)
+# for x in mongo.FindData({"userType": 0}):
+#     print(x)
